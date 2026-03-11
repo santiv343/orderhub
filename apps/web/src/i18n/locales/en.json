@@ -1,0 +1,43 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "search": "Search"
+  },
+  "nav": {
+    "orders": "Orders",
+    "products": "Products",
+    "expenses": "Expenses",
+    "dailyClose": "Daily Close",
+    "reports": "Reports",
+    "connectors": "Connectors",
+    "settings": "Settings"
+  },
+  "orders": {
+    "title": "Orders",
+    "status": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "IN_PREPARATION": "In Preparation",
+      "READY": "Ready",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "REJECTED": "Rejected"
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot your password?",
+    "resetPassword": "Reset password"
+  }
+}

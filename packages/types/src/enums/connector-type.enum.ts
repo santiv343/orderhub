@@ -1,0 +1,19 @@
+export enum ConnectorType {
+  CHROME_EXTENSION = 'CHROME_EXTENSION',
+  WEBHOOK = 'WEBHOOK',
+  API_POLLING = 'API_POLLING',
+}
+
+export enum CancellationReason {
+  OUT_OF_STOCK = 'OUT_OF_STOCK',
+  STORE_CLOSED = 'STORE_CLOSED',
+  DELIVERY_ISSUE = 'DELIVERY_ISSUE',
+  CUSTOMER_REQUEST = 'CUSTOMER_REQUEST',
+  OTHER = 'OTHER',
+}
+
+export enum DailyCloseStatus {
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED',
+  RECONCILED = 'RECONCILED',
+}

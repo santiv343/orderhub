@@ -1,0 +1,43 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ocurrió un error",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "confirm": "Confirmar",
+    "back": "Volver",
+    "search": "Buscar"
+  },
+  "nav": {
+    "orders": "Pedidos",
+    "products": "Productos",
+    "expenses": "Gastos",
+    "dailyClose": "Cierre del día",
+    "reports": "Reportes",
+    "connectors": "Conectores",
+    "settings": "Configuración"
+  },
+  "orders": {
+    "title": "Pedidos",
+    "status": {
+      "PENDING": "Pendiente",
+      "CONFIRMED": "Confirmado",
+      "IN_PREPARATION": "En preparación",
+      "READY": "Listo",
+      "DELIVERED": "Entregado",
+      "CANCELLED": "Cancelado",
+      "REJECTED": "Rechazado"
+    }
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "logout": "Cerrar sesión",
+    "email": "Email",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "resetPassword": "Restablecer contraseña"
+  }
+}
