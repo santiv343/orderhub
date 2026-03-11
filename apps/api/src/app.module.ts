@@ -8,13 +8,6 @@ import { appConfig } from './config/config';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig],
-      validate: (config) => {
-        const result = appConfig.VALIDATION_SCHEMA?.safeParse(config);
-        if (result && !result.success) {
-          throw new Error(`Config validation error: ${result.error.message}`);
-        }
-        return config;
-      },
     }),
   ],
   controllers: [HealthController],
