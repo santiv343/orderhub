@@ -74,8 +74,9 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3000
-      DATABASE_URL: ${DATABASE_URL:-postgresql://orderhub:orderhub_dev@postgres:5432/orderhub}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      # URLs internas del contenedor (siempre usan el nombre del servicio Docker, no localhost)
+      DATABASE_URL: postgresql://orderhub:orderhub_dev@postgres:5432/orderhub
+      REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
