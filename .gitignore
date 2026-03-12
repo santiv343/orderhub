@@ -35,3 +35,6 @@ prisma/migrations/dev.db
 
 # Extension
 extensions/*/dist
+
+# Git worktrees
+.worktrees
