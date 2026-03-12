@@ -10,6 +10,7 @@ import { UserRole } from '@orderhub/types';
 import {
   InvalidCredentialsError,
   TokenInvalidError,
+  UnauthorizedError,
   UserAlreadyExistsError,
 } from '../../errors/auth.errors';
 import { UserRepository } from './repositories/user.repository';
@@ -164,7 +165,8 @@ export class AuthService {
 
   async me(authUser: AuthUser) {
     const user = await this.userRepository.findByIdWithLocations(authUser.userId);
-    return new UserResponseDto(user!);
+    if (!user) throw new UnauthorizedError();
+    return new UserResponseDto(user);
   }
 
   private async generateTokens(userId: string, email: string, locationId: string) {
