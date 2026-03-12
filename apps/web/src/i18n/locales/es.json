@@ -33,11 +33,28 @@
   },
   "auth": {
     "login": "Iniciar sesión",
+    "loginTitle": "Bienvenido de nuevo",
+    "loginSubtitle": "Ingresá a tu cuenta",
     "register": "Registrarse",
+    "registerTitle": "Crear cuenta",
+    "registerSubtitle": "Empezá gratis, sin configurar nada",
     "logout": "Cerrar sesión",
     "email": "Email",
+    "emailPlaceholder": "tu@email.com",
     "password": "Contraseña",
+    "passwordPlaceholder": "Mínimo 8 caracteres",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "businessName": "Nombre del negocio",
+    "businessNamePlaceholder": "Ej: La Pizzería",
     "forgotPassword": "¿Olvidaste tu contraseña?",
-    "resetPassword": "Restablecer contraseña"
+    "resetPassword": "Restablecer contraseña",
+    "noAccount": "¿No tenés cuenta?",
+    "hasAccount": "¿Ya tenés cuenta?",
+    "errors": {
+      "AUTH_INVALID_CREDENTIALS": "Email o contraseña incorrectos",
+      "USER_ALREADY_EXISTS": "Ya existe una cuenta con ese email",
+      "default": "Ocurrió un error, intentá de nuevo"
+    }
   }
 }
