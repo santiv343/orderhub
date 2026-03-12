@@ -32,12 +32,29 @@
     }
   },
   "auth": {
-    "login": "Login",
+    "login": "Log in",
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Sign in to your account",
     "register": "Register",
-    "logout": "Logout",
+    "registerTitle": "Create account",
+    "registerSubtitle": "Get started for free",
+    "logout": "Log out",
     "email": "Email",
+    "emailPlaceholder": "you@email.com",
     "password": "Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "businessName": "Business name",
+    "businessNamePlaceholder": "e.g. The Pizzeria",
     "forgotPassword": "Forgot your password?",
-    "resetPassword": "Reset password"
+    "resetPassword": "Reset password",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "errors": {
+      "AUTH_INVALID_CREDENTIALS": "Incorrect email or password",
+      "USER_ALREADY_EXISTS": "An account with that email already exists",
+      "default": "Something went wrong, please try again"
+    }
   }
 }
