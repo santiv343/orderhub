@@ -1,4 +1,7 @@
 export const QUERY_KEYS = {
+  auth: {
+    me: ['auth', 'me'] as const,
+  },
   orders: {
     all: ['orders'] as const,
     list: (filters?: Record<string, unknown>) => ['orders', 'list', filters] as const,
