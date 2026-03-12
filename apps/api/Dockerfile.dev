@@ -29,4 +29,5 @@ WORKDIR /app/apps/api
 
 EXPOSE 3000
 
-CMD ["pnpm", "dev"]
+# Aplica migraciones pendientes y arranca en modo watch
+CMD ["sh", "-c", "pnpm db:deploy && pnpm dev"]
