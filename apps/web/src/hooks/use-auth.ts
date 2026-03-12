@@ -15,7 +15,7 @@ export function useAuth() {
   const { data, isError, isLoading } = useQuery({
     queryKey: QUERY_KEYS.auth.me,
     queryFn: () => api.get<AuthUser>('/auth/me'),
-    retry: false,
+    retry: false, // Auth failures should not be retried — fail fast and redirect to login
     enabled: user === null,
   });
 
