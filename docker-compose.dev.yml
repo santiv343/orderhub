@@ -1,4 +1,6 @@
 services:
+  # ─── Infraestructura ─────────────────────────────────────────────────────────
+
   postgres:
     image: postgres:16-alpine
     container_name: orderhub_postgres
@@ -58,6 +60,64 @@ services:
     volumes:
       - localstack_data:/var/lib/localstack
       - /var/run/docker.sock:/var/run/docker.sock
+
+  # ─── Aplicación ──────────────────────────────────────────────────────────────
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.dev
+    container_name: orderhub_api
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: ${DATABASE_URL:-postgresql://orderhub:orderhub_dev@postgres:5432/orderhub}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      WEB_URL: http://localhost:3001
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-orderhub-dev}
+      AWS_ENDPOINT_URL: http://localstack:4566
+    volumes:
+      # Hot reload: montar solo el src, node_modules queda en el contenedor
+      - ./apps/api/src:/app/apps/api/src
+      - ./packages/types/src:/app/packages/types/src
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile.dev
+    container_name: orderhub_web
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      # NEXT_PUBLIC_API_URL: para el browser (usa localhost)
+      NEXT_PUBLIC_API_URL: http://localhost:3000/api/v1
+      # API_URL: para server-side rendering (usa nombre del servicio Docker)
+      API_URL: http://api:3000/api/v1
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - ./apps/web/src:/app/apps/web/src
+      - ./packages/types/src:/app/packages/types/src
+    depends_on:
+      - api
 
 volumes:
   postgres_data:
