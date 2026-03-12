@@ -121,7 +121,16 @@ export class AuthService {
       include: { user: true },
     });
 
-    if (!stored || stored.revokedAt || stored.expiresAt < new Date()) {
+    if (!stored || stored.expiresAt < new Date()) {
+      throw new TokenInvalidError();
+    }
+
+    // Token already used — possible theft, revoke all active tokens for this user
+    if (stored.revokedAt) {
+      await this.prisma.refreshToken.updateMany({
+        where: { userId: stored.userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
       throw new TokenInvalidError();
     }
 
@@ -167,13 +176,13 @@ export class AuthService {
     const jti = randomUUID();
 
     const accessPayload: JwtPayload = { sub: userId, email, locationId, type: 'access' };
-    const accessToken = this.jwtService.sign(accessPayload as any, {
+    const accessToken = this.jwtService.sign(accessPayload, {
       secret: this.config.JWT_SECRET,
       expiresIn: this.config.JWT_EXPIRES_IN as any,
     });
 
     const refreshToken = this.jwtService.sign(
-      { sub: userId, jti: jti as string, type: 'refresh' } as any,
+      { sub: userId, jti, type: 'refresh' },
       { secret: this.config.JWT_REFRESH_SECRET, expiresIn: this.config.JWT_REFRESH_EXPIRES_IN as any },
     );
 
