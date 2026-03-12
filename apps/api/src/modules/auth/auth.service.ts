@@ -3,15 +3,17 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
 import * as bcrypt from 'bcrypt';
+import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { AppConfig } from '../../config/config';
 import { UserRole } from '@orderhub/types';
-import type { Prisma } from '@prisma/client';
 import {
   InvalidCredentialsError,
   TokenInvalidError,
   UserAlreadyExistsError,
 } from '../../errors/auth.errors';
+import { UserRepository } from './repositories/user.repository';
+import { UserResponseDto } from './dto/auth-response.dto';
 import type { RegisterDto } from './dto/register.dto';
 import type { LoginDto } from './dto/login.dto';
 import type { AuthUser, JwtPayload } from './strategies/jwt.strategy';
@@ -34,6 +36,7 @@ export class AuthService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {
@@ -41,36 +44,31 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
-    const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const existing = await this.userRepository.findByEmail(dto.email);
     if (existing) throw new UserAlreadyExistsError(dto.email);
 
     const passwordHash = await bcrypt.hash(dto.password, BCRYPT_SALT_ROUNDS);
     const baseSlug = slugify(dto.businessName);
 
     const { user, location } = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const user = await tx.user.create({
-        data: {
+      const user = await this.userRepository.create(
+        {
           email: dto.email,
           passwordHash,
           firstName: dto.firstName,
           lastName: dto.lastName,
         },
-      });
+        tx,
+      );
 
       const slug = await this.uniqueSlug(baseSlug, tx);
 
       const org = await tx.organization.create({
-        data: {
-          name: dto.businessName,
-          slug,
-        },
+        data: { name: dto.businessName, slug },
       });
 
       const location = await tx.location.create({
-        data: {
-          name: dto.businessName,
-          organizationId: org.id,
-        },
+        data: { name: dto.businessName, organizationId: org.id },
       });
 
       await tx.organizationUser.create({
@@ -85,11 +83,11 @@ export class AuthService {
     });
 
     const tokens = await this.generateTokens(user.id, user.email, location.id);
-    return { user: this.sanitizeUser(user), tokens };
+    return { user: new UserResponseDto(user), tokens };
   }
 
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const user = await this.userRepository.findByEmail(dto.email);
     if (!user) throw new InvalidCredentialsError();
 
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
@@ -101,7 +99,7 @@ export class AuthService {
     if (!locationUser) throw new InvalidCredentialsError();
 
     const tokens = await this.generateTokens(user.id, user.email, locationUser.locationId);
-    return { user: this.sanitizeUser(user), tokens };
+    return { user: new UserResponseDto(user), tokens };
   }
 
   async refresh(refreshToken: string) {
@@ -152,7 +150,9 @@ export class AuthService {
     if (!refreshToken) return;
     let payload: { jti: string } | null = null;
     try {
-      payload = this.jwtService.verify(refreshToken, { secret: this.config.JWT_REFRESH_SECRET }) as { jti: string };
+      payload = this.jwtService.verify(refreshToken, {
+        secret: this.config.JWT_REFRESH_SECRET,
+      }) as { jti: string };
     } catch {
       return;
     }
@@ -163,20 +163,15 @@ export class AuthService {
   }
 
   async me(authUser: AuthUser) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: authUser.userId },
-      include: {
-        locationUsers: { include: { location: { include: { organization: true } } } },
-      },
-    });
-    return this.sanitizeUser(user!);
+    const user = await this.userRepository.findByIdWithLocations(authUser.userId);
+    return new UserResponseDto(user!);
   }
 
   private async generateTokens(userId: string, email: string, locationId: string) {
     const jti = randomUUID();
 
     const accessPayload: JwtPayload = { sub: userId, email, locationId, type: 'access' };
-    const accessToken = this.jwtService.sign(accessPayload, {
+    const accessToken = this.jwtService.sign(accessPayload as object, {
       secret: this.config.JWT_SECRET,
       expiresIn: this.config.JWT_EXPIRES_IN as any,
     });
@@ -202,17 +197,5 @@ export class AuthService {
     if (!existing) return base;
     const suffix = randomUUID().slice(0, 6);
     return `${base}-${suffix}`;
-  }
-
-  private sanitizeUser(user: { id: string; email: string; firstName: string; lastName: string; isEmailVerified: boolean; isActive: boolean; createdAt: Date }) {
-    return {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      isEmailVerified: user.isEmailVerified,
-      isActive: user.isActive,
-      createdAt: user.createdAt,
-    };
   }
 }

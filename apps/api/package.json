@@ -13,13 +13,24 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@fastify/cookie": "^9.4.0",
+    "@fastify/helmet": "^13.0.2",
     "@nestjs/common": "^10.4.0",
-    "@nestjs/core": "^10.4.0",
-    "@nestjs/platform-fastify": "^10.4.0",
     "@nestjs/config": "^3.3.0",
+    "@nestjs/core": "^10.4.0",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-fastify": "^10.4.0",
     "@nestjs/terminus": "^10.2.3",
+    "@nestjs/throttler": "^6.5.0",
     "@orderhub/types": "workspace:*",
     "@prisma/client": "^5.22.0",
+    "bcrypt": "^6.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "fastify": "^5.8.2",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "zod": "^3.23.8"
@@ -27,7 +38,9 @@
   "devDependencies": {
     "@nestjs/cli": "^10.4.0",
     "@nestjs/testing": "^10.4.0",
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^22.0.0",
+    "@types/passport-jwt": "^4.0.1",
     "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.0"
