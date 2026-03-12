@@ -1,11 +1,11 @@
 export const ROUTES = {
   home: '/',
   auth: {
-    login: '/auth/login',
-    register: '/auth/register',
-    forgotPassword: '/auth/forgot-password',
-    resetPassword: '/auth/reset-password',
-    verifyEmail: '/auth/verify-email',
+    login: '/login',
+    register: '/register',
+    forgotPassword: '/forgot-password',
+    resetPassword: '/reset-password',
+    verifyEmail: '/verify-email',
   },
   dashboard: {
     root: '/dashboard',
