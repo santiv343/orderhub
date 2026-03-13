@@ -1,11 +1,15 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
     "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "outDir": "./dist",
-    "lib": ["ES2020", "DOM"]
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "types": ["vitest/globals", "chrome"],
+    "paths": {
+      "@orderhub/types": ["../../packages/types/src/index.ts"]
+    }
   },
-  "include": ["src"]
+  "include": ["src/**/*"]
 }
