@@ -8,6 +8,7 @@ import { appConfig } from './config/config';
 import { PrismaModule } from './shared/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ApiKeysModule } from './modules/api-keys/api-keys.module';
+import { IntegrationsModule } from './modules/integrations/integrations.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ApiKeysModule } from './modules/api-keys/api-keys.module';
     PrismaModule,
     AuthModule,
     ApiKeysModule,
+    IntegrationsModule,
   ],
   controllers: [HealthController],
   providers: [
