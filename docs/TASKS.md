@@ -14,7 +14,7 @@ Leerlo al inicio de cada sesión para retomar contexto sin necesidad de re-explo
 | Sprint 0 — Scaffold monorepo | Monorepo funcional, DB corriendo | ✅ Completo |
 | Sprint 1 — Auth y estructura base | Registro, login, JWT, guards | ✅ Completo |
 | Refactor pre-Sprint 2 | DX, arquitectura, frontend modernization | ✅ Completo |
-| Sprint 2 — Importación de pedidos | Endpoint import + API Keys + deduplicación | ⏳ Pendiente |
+| Sprint 2 — Importación de pedidos | Endpoint import + API Keys + deduplicación | ✅ Completo |
 | Sprint 3 — Extensión PedidosYa | Intercepción, parser, cola offline | ⏳ Pendiente |
 | Sprint 4 — Dashboard básico | Métricas del día, lista de pedidos, config | ⏳ Pendiente |
 | Sprint 5 — QA y deploy | Testing e2e, polish, producción | ⏳ Pendiente |
@@ -29,25 +29,25 @@ Leerlo al inicio de cada sesión para retomar contexto sin necesidad de re-explo
 
 | # | Tarea | Estado |
 |---|-------|--------|
-| S2-1 | Crear enums `OrderSource`, `OrderStatus` en `@orderhub/types` | ⏳ Pendiente |
-| S2-2 | Crear `OrderModule` con controller, service, repository | ⏳ Pendiente |
-| S2-3 | `POST /integrations/orders/import` — autenticado con API Key (`X-Api-Key` header) | ⏳ Pendiente |
-| S2-4 | Validación del contrato `ImportedOrder` (DTO + class-validator) | ⏳ Pendiente |
-| S2-5 | Deduplicación: `unique(locationId, source, externalId)` — si existe → 200 sin error | ⏳ Pendiente |
-| S2-6 | `POST /api-keys` — generar nueva API Key (mostrar solo una vez, guardar hash) | ⏳ Pendiente |
-| S2-7 | `GET /api-keys` — listar keys activas con label y fecha | ⏳ Pendiente |
-| S2-8 | `DELETE /api-keys/:id` — revocar key | ⏳ Pendiente |
-| S2-9 | Guard de API Key para el endpoint de import | ⏳ Pendiente |
+| S2-1 | Crear enums `OrderSource`, `OrderStatus` en `@orderhub/types` | ✅ Completo |
+| S2-2 | Crear `OrderModule` con controller, service, repository | ✅ Completo |
+| S2-3 | `POST /integrations/orders/import` — autenticado con API Key (`X-Api-Key` header) | ✅ Completo |
+| S2-4 | Validación del contrato `ImportedOrder` (DTO + class-validator) | ✅ Completo |
+| S2-5 | Deduplicación: `unique(locationId, source, externalId)` — si existe → 200 sin error | ✅ Completo |
+| S2-6 | `POST /api-keys` — generar nueva API Key (mostrar solo una vez, guardar hash) | ✅ Completo |
+| S2-7 | `GET /api-keys` — listar keys activas con label y fecha | ✅ Completo |
+| S2-8 | `DELETE /api-keys/:id` — revocar key | ✅ Completo |
+| S2-9 | Guard de API Key para el endpoint de import | ✅ Completo |
 
 ### Tests
 
 | # | Tarea | Estado |
 |---|-------|--------|
-| S2-T1 | Setup Jest/Vitest en `apps/api` | ⏳ Pendiente |
-| S2-T2 | Test: importar pedido nuevo → se guarda correctamente | ⏳ Pendiente |
-| S2-T3 | Test: importar mismo pedido dos veces → deduplicación funciona | ⏳ Pendiente |
+| S2-T1 | Setup Jest/Vitest en `apps/api` | ✅ Completo |
+| S2-T2 | Test: importar pedido nuevo → se guarda correctamente | ✅ Completo |
+| S2-T3 | Test: importar mismo pedido dos veces → deduplicación funciona | ✅ Completo |
 | S2-T4 | Test: pedido con campos opcionales vacíos → se guarda igual | ⏳ Pendiente |
-| S2-T5 | Test: API Key inválida → 401 | ⏳ Pendiente |
+| S2-T5 | Test: API Key inválida → 401 | ✅ Completo |
 
 **Definition of Done:**
 - `POST /integrations/orders/import` con API Key válida guarda el pedido
@@ -97,6 +97,7 @@ Leerlo al inicio de cada sesión para retomar contexto sin necesidad de re-explo
 | S4-7 | Detalle de pedido (items, notas, cliente) | ⏳ Pendiente |
 | S4-8 | Página `Settings → API Keys` (generar, listar, revocar) | ⏳ Pendiente |
 | S4-9 | Actualización automática cada 30 segundos | ⏳ Pendiente |
+| S4-10 | Tema oscuro/claro con `next-themes` + toggle en navbar | ⏳ Pendiente |
 
 ---
 
