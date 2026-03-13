@@ -3,6 +3,8 @@
 // 2. Escucha los CustomEvents que injected.js despacha
 // 3. Delega los pedidos al background service worker
 
+import { MESSAGE_TYPES } from './constants';
+
 const script = document.createElement('script');
 script.src = chrome.runtime.getURL('injected.js');
 script.onload = () => script.remove();
@@ -14,7 +16,7 @@ window.addEventListener(
     const { url, data } = (event as CustomEvent<{ url: string; data: unknown }>).detail;
 
     chrome.runtime.sendMessage({
-      type: 'INTERCEPTED_REQUEST',
+      type: MESSAGE_TYPES.INTERCEPTED_REQUEST,
       payload: { url, data },
     });
   },

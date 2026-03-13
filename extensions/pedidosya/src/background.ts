@@ -1,4 +1,4 @@
-import { RETRY } from './constants';
+import { RETRY, MESSAGE_TYPES } from './constants';
 import type { QueueItem } from './extension.types';
 import type { ImportedOrder } from '@orderhub/types';
 import { getConfig, getQueue, saveQueue } from './storage';
@@ -75,7 +75,7 @@ function updateBadge(queue: QueueItem[]): void {
 // ─── Service worker runtime ──────────────────────────────────────────────────
 
 chrome.runtime.onMessage.addListener((message: { type: string; payload?: unknown }) => {
-  if (message.type !== 'INTERCEPTED_REQUEST') return;
+  if (message.type !== MESSAGE_TYPES.INTERCEPTED_REQUEST) return;
 
   const { url, data } = message.payload as { url: string; data: unknown };
   const order = tryExtractOrder(url, data);

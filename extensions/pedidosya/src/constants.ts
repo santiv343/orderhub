@@ -21,3 +21,7 @@ export const PEDIDOSYA_ORDER_ENDPOINTS = [
   '/v2/orders',
   '/orders',
 ] as const;
+
+export const MESSAGE_TYPES = {
+  INTERCEPTED_REQUEST: 'INTERCEPTED_REQUEST',
+} as const;

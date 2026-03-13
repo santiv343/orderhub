@@ -16,7 +16,7 @@ export default defineConfig({
       output: {
         entryFileNames: '[name].js',
         chunkFileNames: 'chunks/[name].js',
-        format: 'es',
+        format: 'iife',
       },
     },
     outDir: 'dist',
