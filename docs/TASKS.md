@@ -97,6 +97,7 @@ Leerlo al inicio de cada sesión para retomar contexto sin necesidad de re-explo
 | S4-7 | Detalle de pedido (items, notas, cliente) | ⏳ Pendiente |
 | S4-8 | Página `Settings → API Keys` (generar, listar, revocar) | ⏳ Pendiente |
 | S4-9 | Actualización automática cada 30 segundos | ⏳ Pendiente |
+| S4-10 | Tema oscuro/claro con `next-themes` + toggle en navbar | ⏳ Pendiente |
 
 ---
 
