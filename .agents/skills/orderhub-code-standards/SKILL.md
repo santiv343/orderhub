@@ -191,6 +191,50 @@ export enum UserRole { Owner = 'owner', Admin = 'admin', Manager = 'manager', Op
 
 Un interceptor global en NestJS aplica este formato. Nunca devolver datos sin el envelope.
 
+## Separación de archivos
+
+Un archivo, una responsabilidad. **No mezclar tipos con implementación.**
+
+| Qué va donde | Archivo | Ejemplo |
+|---|---|---|
+| Interfaces y tipos de dominio | `*.types.ts` | `order.types.ts` |
+| Enums | `enums/<nombre>.enum.ts` o `packages/types` | `order-status.enum.ts` |
+| Constantes (strings, números, configs) | `constants/<nombre>.ts` | `api-key.ts`, `limits.ts` |
+| Códigos de error | `constants/errors.ts` | objeto `ERROR_CODES` |
+| Clases de error | `errors/<nombre>.errors.ts` | `integration.errors.ts` |
+| DTOs de entrada/salida | `dto/<nombre>.dto.ts` | `import-orders.dto.ts` |
+| Implementación | el archivo sin sufijo especial | `api-keys.service.ts` |
+
+```typescript
+// ❌ mal — tipos mezclados con implementación
+// order.service.ts
+export interface OrderFilter { source: OrderSource; date: Date }  // ← tipo acá
+export class OrderService { ... }
+
+// ✅ bien — tipos en su propio archivo
+// order.types.ts
+export interface OrderFilter { source: OrderSource; date: Date }
+
+// order.service.ts
+import type { OrderFilter } from './order.types';
+export class OrderService { ... }
+```
+
+```typescript
+// ❌ mal — constantes dispersas en el archivo que las usa
+// api-key.guard.ts
+const KEY_PREFIX = 'ohk_'  // ← constante acá adentro
+
+// ✅ bien — constantes centralizadas
+// constants/api-key.ts
+export const API_KEY = { PREFIX: 'ohk_', BYTES: 24 } as const;
+
+// api-key.guard.ts
+import { API_KEY } from '../../constants/api-key';
+```
+
+**Regla práctica:** si alguien necesita el tipo sin importar la clase, el tipo va en `*.types.ts`. Si alguien necesita la constante en más de un lugar, va en `constants/`.
+
 ## Backend (NestJS)
 
 - `ConfigService` para toda variable de entorno (no `process.env` directo)
@@ -200,12 +244,13 @@ Un interceptor global en NestJS aplica este formato. Nunca devolver datos sin el
 
 ```
 apps/api/src/
-├── config/config.ts          ← validación Zod de env vars
-├── constants/errors.ts       ← códigos de error centralizados
-├── constants/limits.ts       ← paginación, retry, etc.
-├── enums/                    ← OrderStatus, OrderSource, UserRole, etc.
-├── errors/                   ← AppError + clases específicas
+├── config/config.ts              ← validación Zod de env vars
+├── constants/errors.ts           ← códigos de error centralizados
+├── constants/limits.ts           ← paginación, retry, etc.
+├── enums/                        ← OrderStatus, OrderSource, UserRole, etc.
+├── errors/                       ← AppError + clases específicas
 └── modules/<nombre>/
+    ├── <nombre>.types.ts         ← interfaces y tipos del módulo
     ├── <nombre>.controller.ts
     ├── <nombre>.service.ts
     ├── <nombre>.module.ts
