@@ -64,7 +64,8 @@ describe('ApiKeysService', () => {
 
   describe('revoke', () => {
     it('should throw ApiKeyNotFoundError if key does not exist', async () => {
-      mockApiKeyRepo.revoke.mockResolvedValue(null);
+      mockUserRepo.findByIdWithLocations.mockResolvedValue(mockUserWithLocation);
+      mockApiKeyRepo.revoke.mockResolvedValue(false);
 
       await expect(service.revoke('user1', 'nonexistent')).rejects.toThrow(
         ApiKeyNotFoundError,

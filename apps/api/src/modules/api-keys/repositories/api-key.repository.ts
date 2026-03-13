@@ -27,11 +27,12 @@ export class ApiKeyRepository {
     return this.prisma.locationApiKey.create({ data });
   }
 
-  async revoke(id: string): Promise<LocationApiKey | null> {
-    return this.prisma.locationApiKey.update({
-      where: { id },
+  async revoke(id: string, locationId: string): Promise<boolean> {
+    const result = await this.prisma.locationApiKey.updateMany({
+      where: { id, locationId, revokedAt: null },
       data: { revokedAt: new Date() },
     });
+    return result.count > 0;
   }
 
   async updateLastUsed(id: string): Promise<void> {

@@ -26,7 +26,11 @@ export class IntegrationsService {
         continue;
       }
 
-      await this.orderRepo.create(locationId, order);
+      const created = await this.orderRepo.create(locationId, order);
+      if (!created) {
+        duplicates++;
+        continue;
+      }
       imported++;
     }
 

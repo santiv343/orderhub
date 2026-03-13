@@ -40,7 +40,8 @@ export class ApiKeysService {
   }
 
   async revoke(userId: string, keyId: string): Promise<void> {
-    const revoked = await this.apiKeyRepo.revoke(keyId);
+    const locationId = await this.getLocationId(userId);
+    const revoked = await this.apiKeyRepo.revoke(keyId, locationId);
     if (!revoked) throw new ApiKeyNotFoundError(keyId);
   }
 
