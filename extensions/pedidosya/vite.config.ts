@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
+// This config is used by vitest and `vite build --watch` (dev mode).
+// Production build uses build.mjs which builds each entry separately as IIFE
+// to work around Rollup's restriction on IIFE format with multiple inputs.
 export default defineConfig({
   build: {
     rollupOptions: {
@@ -13,9 +16,7 @@ export default defineConfig({
       output: {
         entryFileNames: '[name].js',
         chunkFileNames: 'chunks/[name].js',
-        // IIFE format es requerido: content scripts y injected NO soportan ES modules en Chrome.
-        // El service worker (background) también funciona correctamente como classic script.
-        format: 'iife',
+        format: 'es',
       },
     },
     outDir: 'dist',

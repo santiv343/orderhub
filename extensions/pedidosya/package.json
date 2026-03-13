@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vite build",
+    "build": "node build.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },
