@@ -3,7 +3,7 @@
   "name": "Orderhub — PedidosYa Importer",
   "version": "0.1.0",
   "description": "Importa pedidos de PedidosYa Merchant a Orderhub automáticamente",
-  "permissions": ["storage", "scripting"],
+  "permissions": ["storage", "scripting", "alarms"],
   "host_permissions": [
     "https://*.pedidosya.com/*",
     "https://*.pedidosya.com.ar/*"
