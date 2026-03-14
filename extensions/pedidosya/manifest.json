@@ -1,41 +1,37 @@
 {
   "manifest_version": 3,
-  "name": "Orderhub — PedidosYa Connector",
+  "name": "Orderhub — PedidosYa Importer",
   "version": "0.1.0",
-  "description": "Importa pedidos de PedidosYa a Orderhub automáticamente",
-  "permissions": [
-    "storage",
-    "alarms",
-    "notifications"
-  ],
+  "description": "Importa pedidos de PedidosYa Merchant a Orderhub automáticamente",
+  "permissions": ["storage", "scripting", "alarms"],
   "host_permissions": [
     "https://*.pedidosya.com/*",
-    "http://localhost:3000/*"
-  ],
-  "content_scripts": [
-    {
-      "matches": ["https://*.pedidosya.com/*"],
-      "js": ["content.js"],
-      "run_at": "document_idle"
-    }
+    "https://*.pedidosya.com.ar/*"
   ],
   "background": {
-    "service_worker": "background.js",
-    "type": "module"
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.pedidosya.com/*",
+        "https://*.pedidosya.com.ar/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Orderhub"
   },
   "web_accessible_resources": [
     {
       "resources": ["injected.js"],
-      "matches": ["https://*.pedidosya.com/*"]
+      "matches": [
+        "https://*.pedidosya.com/*",
+        "https://*.pedidosya.com.ar/*"
+      ]
     }
-  ],
-  "icons": {
-    "16": "icons/icon-16.png",
-    "48": "icons/icon-48.png",
-    "128": "icons/icon-128.png"
-  },
-  "action": {
-    "default_title": "Orderhub Connector",
-    "default_popup": "popup.html"
-  }
+  ]
 }

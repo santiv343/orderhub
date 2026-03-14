@@ -1,29 +1,25 @@
-// Content script — runs in PedidosYa page context
-// Communicates with the injected script and background service worker
+// Content script: corre en el contexto del content script (tiene acceso a chrome.*)
+// 1. Inyecta injected.js en el contexto de la página
+// 2. Escucha los CustomEvents que injected.js despacha
+// 3. Delega los pedidos al background service worker
 
-const INJECTED_SCRIPT_URL = chrome.runtime.getURL('injected.js');
+import { MESSAGE_TYPES } from './constants';
 
-function injectScript(src: string): void {
-  const script = document.createElement('script');
-  script.src = src;
-  script.type = 'module';
-  (document.head ?? document.documentElement).appendChild(script);
-  script.addEventListener('load', () => script.remove());
-}
+const script = document.createElement('script');
+script.src = chrome.runtime.getURL('injected.js');
+script.onload = () => script.remove();
+document.documentElement.prepend(script);
 
-// Inject the script that runs in page context (has access to page's JS)
-injectScript(INJECTED_SCRIPT_URL);
+window.addEventListener(
+  'orderhub:intercepted',
+  (event: Event) => {
+    const { url, data } = (event as CustomEvent<{ url: string; data: unknown }>).detail;
 
-// Listen for messages from injected script
-window.addEventListener('message', (event) => {
-  if (event.source !== window) return;
-  if (event.data?.source !== 'orderhub-injected') return;
+    chrome.runtime.sendMessage({
+      type: MESSAGE_TYPES.INTERCEPTED_REQUEST,
+      payload: { url, data },
+    });
+  },
+);
 
-  // Forward to background service worker
-  chrome.runtime.sendMessage(event.data);
-});
-
-// Listen for messages from background
-chrome.runtime.onMessage.addListener((message) => {
-  window.postMessage({ source: 'orderhub-content', ...message }, '*');
-});
+console.debug('[Orderhub] Content script activo en', location.href);

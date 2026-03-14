@@ -1,62 +1,68 @@
-import type { ImportedOrder, ImportedOrderItem } from '@orderhub/types';
 import { OrderSource, OrderStatus } from '@orderhub/types';
+import type { ImportedOrder, ImportedOrderItem } from '@orderhub/types';
+import type { PedidosYaOrderDetail } from './extension.types';
+import { PEDIDOSYA_ORDER_ENDPOINTS } from './constants';
 
-// Parses raw PedidosYa order data into the ImportedOrder contract
-export function parsePedidosYaOrder(raw: Record<string, unknown>): ImportedOrder {
-  const items = parseItems(raw['products'] as unknown[] | undefined);
+export function isOrderEndpoint(url: string): boolean {
+  return PEDIDOSYA_ORDER_ENDPOINTS.some((endpoint) => url.includes(endpoint));
+}
 
-  const subtotal = Number(raw['subtotal'] ?? 0);
-  const discounts = Number(raw['discounts'] ?? 0);
-  const deliveryFee = Number(raw['deliveryFee'] ?? 0);
-  const total = Number(raw['total'] ?? subtotal - discounts + deliveryFee);
-
+function mapItem(detail: PedidosYaOrderDetail['orderDetails'][number]): ImportedOrderItem {
   return {
-    externalId: String(raw['id'] ?? ''),
+    externalId: String(detail.id),
+    name: detail.product.name,
+    quantity: detail.amount,
+    unitPrice: detail.unitaryPrice,
+    totalPrice: detail.subTotal,
+    notes: detail.notes,
+  };
+}
+
+function buildCustomerName(user: PedidosYaOrderDetail['user']): string {
+  if (!user) return 'Cliente PedidosYa';
+  const parts = [user.name, user.lastName].filter(Boolean);
+  return parts.length > 0 ? parts.join(' ') : 'Cliente PedidosYa';
+}
+
+export function parseOrder(raw: PedidosYaOrderDetail): ImportedOrder {
+  return {
+    externalId: String(raw.id),
     source: OrderSource.PEDIDOSYA,
-    status: mapStatus(String(raw['state'] ?? '')),
-    customerName: String(raw['user']?.['name'] ?? 'Unknown'),
-    customerPhone: raw['user']?.['phone'] != null ? String(raw['user']['phone']) : undefined,
-    customerAddress: raw['address']?.['description'] != null
-      ? String(raw['address']['description'])
-      : undefined,
-    items,
-    subtotal,
-    discounts,
-    deliveryFee,
-    total,
-    notes: raw['notes'] != null ? String(raw['notes']) : undefined,
-    placedAt: new Date(String(raw['registeredDate'] ?? Date.now())),
-    rawPayload: raw,
+    status: OrderStatus.PENDING,
+    customerName: buildCustomerName(raw.user),
+    customerPhone: raw.user?.phoneNumber,
+    customerAddress: raw.address?.description,
+    items: raw.orderDetails.map(mapItem),
+    subtotal: raw.subtotal ?? raw.total,
+    discounts: raw.discountAmount ?? 0,
+    deliveryFee: raw.shippingAmount ?? 0,
+    total: raw.total,
+    notes: raw.notes,
+    placedAt: new Date(raw.registeredDate),
+    rawPayload: raw as Record<string, unknown>,
   };
 }
 
-function parseItems(products: unknown[] | undefined): ImportedOrderItem[] {
-  if (!Array.isArray(products)) return [];
-
-  return products.map((p) => {
-    const product = p as Record<string, unknown>;
-    const quantity = Number(product['quantity'] ?? 1);
-    const unitPrice = Number(product['unitPrice'] ?? 0);
-    return {
-      externalId: String(product['id'] ?? ''),
-      name: String(product['name'] ?? ''),
-      quantity,
-      unitPrice,
-      totalPrice: quantity * unitPrice,
-      notes: product['comment'] != null ? String(product['comment']) : undefined,
-    };
-  });
+function extractOrderData(data: Record<string, unknown>): Record<string, unknown> | null {
+  // Handle { order: {...} } wrapper structure
+  if (typeof data['order'] === 'object' && data['order'] !== null) {
+    return data['order'] as Record<string, unknown>;
+  }
+  // Direct structure
+  return data;
 }
 
-function mapStatus(state: string): OrderStatus {
-  const map: Record<string, OrderStatus> = {
-    PENDING: OrderStatus.PENDING,
-    CONFIRMED: OrderStatus.CONFIRMED,
-    KITCHEN: OrderStatus.IN_PREPARATION,
-    READY: OrderStatus.READY,
-    DELIVERED: OrderStatus.DELIVERED,
-    CANCELLED: OrderStatus.CANCELLED,
-    REJECTED: OrderStatus.REJECTED,
-  };
-  return map[state] ?? OrderStatus.PENDING;
+export function tryExtractOrder(url: string, data: unknown): ImportedOrder | null {
+  if (!isOrderEndpoint(url)) return null;
+  if (typeof data !== 'object' || data === null) return null;
+
+  const orderData = extractOrderData(data as Record<string, unknown>);
+
+  if (!orderData?.['id'] || !orderData?.['total']) return null;
+
+  try {
+    return parseOrder(orderData as unknown as PedidosYaOrderDetail);
+  } catch {
+    return null;
+  }
 }

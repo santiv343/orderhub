@@ -1,35 +1,44 @@
 import type { ImportedOrder } from '@orderhub/types';
 
-interface ApiConfig {
-  apiUrl: string;
-  apiKey: string;
+interface ImportResult {
+  imported: number;
+  duplicates: number;
 }
 
-export class OrderhubApiClient {
-  constructor(private readonly config: ApiConfig) {}
+interface ApiError {
+  error: { code: string; message: string };
+}
 
-  async importOrder(order: ImportedOrder): Promise<void> {
-    const response = await fetch(`${this.config.apiUrl}/connectors/pedidosya/import`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Api-Key': this.config.apiKey,
-      },
-      body: JSON.stringify(order),
-    });
+// Convierte ImportedOrder al contrato del backend (placedAt como ISO string)
+function toBackendDto(order: ImportedOrder) {
+  return {
+    ...order,
+    placedAt: order.placedAt instanceof Date
+      ? order.placedAt.toISOString()
+      : order.placedAt,
+  };
+}
 
-    if (!response.ok) {
-      const body = await response.text();
-      throw new Error(`Orderhub API error ${response.status}: ${body}`);
-    }
+export async function sendOrders(
+  orders: ImportedOrder[],
+  apiKey: string,
+  backendUrl: string,
+): Promise<ImportResult> {
+  const response = await fetch(`${backendUrl}/integrations/orders/import`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Api-Key': apiKey,
+    },
+    body: JSON.stringify({ orders: orders.map(toBackendDto) }),
+  });
+
+  const data = (await response.json()) as ImportResult | ApiError;
+
+  if (!response.ok) {
+    const err = data as ApiError;
+    throw new Error(err.error?.code ?? `HTTP ${response.status}`);
   }
 
-  async healthCheck(): Promise<boolean> {
-    try {
-      const response = await fetch(`${this.config.apiUrl}/health`);
-      return response.ok;
-    } catch {
-      return false;
-    }
-  }
+  return data as ImportResult;
 }

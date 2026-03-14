@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Orderhub</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      width: 300px;
+      padding: 16px;
+      background: #0f172a;
+      color: #f1f5f9;
+    }
+    h1 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #38bdf8; }
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #64748b; flex-shrink: 0;
+    }
+    .dot.connected { background: #22c55e; }
+    .dot.error { background: #ef4444; }
+    .pending-count {
+      background: #f59e0b; color: #000;
+      border-radius: 12px; padding: 2px 8px;
+      font-size: 12px; font-weight: 600;
+    }
+    label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+    input {
+      width: 100%; padding: 8px 10px;
+      background: #1e293b; border: 1px solid #334155;
+      border-radius: 6px; color: #f1f5f9;
+      font-size: 13px; outline: none;
+    }
+    input:focus { border-color: #38bdf8; }
+    button {
+      width: 100%; margin-top: 10px; padding: 8px;
+      background: #0284c7; color: #fff;
+      border: none; border-radius: 6px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+    }
+    button:hover { background: #0369a1; }
+    .section { margin-top: 16px; padding-top: 16px; border-top: 1px solid #1e293b; }
+    #saved-msg { font-size: 12px; color: #22c55e; margin-top: 6px; display: none; }
+    #failed-list { margin-top: 8px; font-size: 12px; color: #ef4444; }
+  </style>
+</head>
+<body>
+  <h1>Orderhub</h1>
+
+  <div class="status-row">
+    <span class="dot" id="dot"></span>
+    <span id="status-text">Verificando...</span>
+  </div>
+
+  <div class="status-row" id="pending-row" style="display:none">
+    <span class="pending-count" id="pending-count">0</span>
+    <span>pedidos pendientes de sincronizar</span>
+  </div>
+
+  <div class="section">
+    <label for="api-key">API Key</label>
+    <input type="password" id="api-key" placeholder="ohk_..." autocomplete="off" />
+    <button id="save-btn">Guardar</button>
+    <div id="saved-msg">✓ Guardado</div>
+  </div>
+
+  <div id="failed-list"></div>
+
+  <!-- IIFE format — no type="module" -->
+  <script src="popup.js"></script>
+</body>
+</html>
