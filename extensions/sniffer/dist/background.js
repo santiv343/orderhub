@@ -1,25 +1,37 @@
 (function() {
   "use strict";
   const ALARM_NAME = "sniffer-queue-flush";
+  let schemasCache = null;
+  let queueCache = null;
   function getPort() {
     return new Promise(
       (resolve) => chrome.storage.sync.get({ serverPort: 7733 }, (c) => resolve(c["serverPort"]))
     );
   }
-  function getSchemas() {
+  async function getSchemas() {
+    if (schemasCache) return schemasCache;
     return new Promise(
-      (resolve) => chrome.storage.local.get({ schemas: {} }, (c) => resolve(c["schemas"]))
+      (resolve) => chrome.storage.local.get({ schemas: {} }, (c) => {
+        schemasCache = c["schemas"];
+        resolve(schemasCache);
+      })
     );
   }
-  function saveSchemas(schemas) {
+  async function saveSchemas(schemas) {
+    schemasCache = schemas;
     return new Promise((resolve) => chrome.storage.local.set({ schemas }, resolve));
   }
-  function getQueue() {
+  async function getQueue() {
+    if (queueCache) return queueCache;
     return new Promise(
-      (resolve) => chrome.storage.local.get({ queue: [] }, (c) => resolve(c["queue"]))
+      (resolve) => chrome.storage.local.get({ queue: [] }, (c) => {
+        queueCache = c["queue"];
+        resolve(queueCache);
+      })
     );
   }
-  function saveQueue(queue) {
+  async function saveQueue(queue) {
+    queueCache = queue;
     return new Promise((resolve) => chrome.storage.local.set({ queue }, resolve));
   }
   chrome.runtime.onMessage.addListener((message) => {
@@ -49,7 +61,9 @@
       await saveQueue(queue);
     }
   }
-  chrome.alarms.create(ALARM_NAME, { periodInMinutes: 1 });
+  chrome.alarms.get(ALARM_NAME, (existing) => {
+    if (!existing) chrome.alarms.create(ALARM_NAME, { periodInMinutes: 1 });
+  });
   chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === ALARM_NAME) flushQueue().catch(console.error);
   });

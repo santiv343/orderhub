@@ -17,29 +17,44 @@ interface SchemaCapture {
 
 // ── Storage helpers ───────────────────────────────────────────────────────────
 
+// In-memory cache eliminates read-modify-write races (JS is single-threaded;
+// all async gaps are between awaits, not between cache reads and writes)
+let schemasCache: Record<string, unknown> | null = null;
+let queueCache: SchemaCapture[] | null = null;
+
 function getPort(): Promise<number> {
   return new Promise((resolve) =>
     chrome.storage.sync.get({ serverPort: 7733 }, (c) => resolve(c['serverPort'] as number)),
   );
 }
 
-function getSchemas(): Promise<Record<string, unknown>> {
+async function getSchemas(): Promise<Record<string, unknown>> {
+  if (schemasCache) return schemasCache;
   return new Promise((resolve) =>
-    chrome.storage.local.get({ schemas: {} }, (c) => resolve(c['schemas'] as Record<string, unknown>)),
+    chrome.storage.local.get({ schemas: {} }, (c) => {
+      schemasCache = c['schemas'] as Record<string, unknown>;
+      resolve(schemasCache);
+    }),
   );
 }
 
-function saveSchemas(schemas: Record<string, unknown>): Promise<void> {
+async function saveSchemas(schemas: Record<string, unknown>): Promise<void> {
+  schemasCache = schemas;
   return new Promise((resolve) => chrome.storage.local.set({ schemas }, resolve));
 }
 
-function getQueue(): Promise<SchemaCapture[]> {
+async function getQueue(): Promise<SchemaCapture[]> {
+  if (queueCache) return queueCache;
   return new Promise((resolve) =>
-    chrome.storage.local.get({ queue: [] }, (c) => resolve(c['queue'] as SchemaCapture[])),
+    chrome.storage.local.get({ queue: [] }, (c) => {
+      queueCache = c['queue'] as SchemaCapture[];
+      resolve(queueCache);
+    }),
   );
 }
 
-function saveQueue(queue: SchemaCapture[]): Promise<void> {
+async function saveQueue(queue: SchemaCapture[]): Promise<void> {
+  queueCache = queue;
   return new Promise((resolve) => chrome.storage.local.set({ queue }, resolve));
 }
 
@@ -81,7 +96,11 @@ async function handleCapture(endpoint: string, schema: unknown): Promise<void> {
 // ── Queue flush via chrome.alarms ─────────────────────────────────────────────
 // chrome.alarms tiene un mínimo de 1 minuto en MV3 (setInterval no funciona en SW)
 
-chrome.alarms.create(ALARM_NAME, { periodInMinutes: 1 });
+// Only create if it doesn't already exist — recreating resets the timer,
+// which would prevent the flush from ever firing during active capture sessions
+chrome.alarms.get(ALARM_NAME, (existing) => {
+  if (!existing) chrome.alarms.create(ALARM_NAME, { periodInMinutes: 1 });
+});
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === ALARM_NAME) flushQueue().catch(console.error);
