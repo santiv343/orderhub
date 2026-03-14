@@ -178,7 +178,13 @@ const CONFIG = {
     if (Array.isArray(obj)) { obj.forEach((item) => collectEnumValues(item, accumulated)); return; }
     for (const [k, v] of Object.entries(obj)) {
       const fieldName = k.toLowerCase();
-      const isEnumField = cfg.enumFieldNames.some((n) => fieldName === n || fieldName.endsWith('_' + n) || fieldName.endsWith(n.charAt(0).toUpperCase() + n.slice(1)));
+      // Matchea: exact ('status'), snake_case suffix ('order_status'), camelCase suffix ('orderStatus')
+      // Nota: fieldName está en lowercase, por eso el check camelCase usa k (original) para comparar
+      const isEnumField = cfg.enumFieldNames.some((n) =>
+        fieldName === n ||
+        fieldName.endsWith('_' + n) ||
+        k.endsWith(n.charAt(0).toUpperCase() + n.slice(1))
+      );
       if (isEnumField && typeof v === 'string' && v.length > 0 && v.length < 50) {
         if (!accumulated[k]) accumulated[k] = new Set();
         if (accumulated[k].size < cfg.maxEnumValues) accumulated[k].add(v);
