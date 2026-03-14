@@ -15,7 +15,7 @@ Leerlo al inicio de cada sesión para retomar contexto sin necesidad de re-explo
 | Sprint 1 — Auth y estructura base | Registro, login, JWT, guards | ✅ Completo |
 | Refactor pre-Sprint 2 | DX, arquitectura, frontend modernization | ✅ Completo |
 | Sprint 2 — Importación de pedidos | Endpoint import + API Keys + deduplicación | ✅ Completo |
-| Sprint 3 — Extensión PedidosYa | Intercepción, parser, cola offline | ⏳ Pendiente |
+| Sprint 3 — Extensión PedidosYa | Intercepción, parser, cola offline | ✅ Completo |
 | Sprint 4 — Dashboard básico | Métricas del día, lista de pedidos, config | ⏳ Pendiente |
 | Sprint 5 — QA y deploy | Testing e2e, polish, producción | ⏳ Pendiente |
 
@@ -62,12 +62,12 @@ Leerlo al inicio de cada sesión para retomar contexto sin necesidad de re-explo
 
 | # | Tarea | Estado |
 |---|-------|--------|
-| S3-1 | `interceptor.ts` — override de `window.fetch` y `XMLHttpRequest` | ⏳ Pendiente |
-| S3-2 | Mapear API de PedidosYa: identificar endpoints con datos de pedidos | ⏳ Pendiente |
-| S3-3 | `parser.ts` — transformar response de PedidosYa a `ImportedOrder` | ⏳ Pendiente |
-| S3-4 | Cola offline con reintentos en `background.ts` (service worker) | ⏳ Pendiente |
-| S3-5 | Popup: estado de conexión + input de API Key | ⏳ Pendiente |
-| S3-6 | Build de la extensión instalable en Chrome/Edge | ⏳ Pendiente |
+| S3-1 | `interceptor.ts` — override de `window.fetch` y `XMLHttpRequest` | ✅ Completo |
+| S3-2 | Mapear API de PedidosYa: identificar endpoints con datos de pedidos | ✅ Completo |
+| S3-3 | `parser.ts` — transformar response de PedidosYa a `ImportedOrder` | ✅ Completo |
+| S3-4 | Cola offline con reintentos en `background.ts` (service worker) | ✅ Completo |
+| S3-5 | Popup: estado de conexión + input de API Key | ✅ Completo |
+| S3-6 | Build de la extensión instalable en Chrome/Edge | ✅ Completo |
 
 **Definition of Done:**
 - Con el panel de PedidosYa abierto, un pedido nuevo aparece en el backend en < 5 segundos

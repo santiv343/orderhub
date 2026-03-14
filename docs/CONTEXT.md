@@ -1,59 +1,58 @@
 # Orderhub — Contexto de Sesión
 
-_Última actualización: 2026-03-12_
+_Última actualización: 2026-03-14_
 
 ---
 
 ## Sprint activo
 
-**Sprint 2 — Órdenes y Productos** (pendiente de inicio)
+**Sprint 4 — Dashboard básico** (pendiente de inicio)
 
 ## Estado actual
 
-Refactor pre-Sprint 2 completado en su totalidad. El codebase está listo para comenzar features de negocio.
+Sprint 3 completado y mergeado a `develop` (PR #5). La extensión Chrome para PedidosYa está funcional y lista para instalar.
 
-## Qué se hizo (Refactor pre-Sprint 2)
+## Qué se hizo (Sprint 3 — Extensión PedidosYa)
 
-**Capa 1 — DX & Consistencia:**
-- Eliminadas rutas duplicadas (`apps/web/src/app/auth/` y `dashboard/`)
-- `en.json` completado con todas las claves de auth
-- `LoginDto` password: `@MinLength(8)` alineado con RegisterDto
-- `tx: any` → `Prisma.TransactionClient` en AuthService
-- `NEXT_PUBLIC_API_URL` agregada a `.env.example`
+- `extensions/pedidosya/src/constants.ts` — `STORAGE_KEYS`, `DEFAULTS`, `RETRY`, `PEDIDOSYA_ORDER_ENDPOINTS`, `MESSAGE_TYPES`
+- `extensions/pedidosya/src/extension.types.ts` — `QueueItem`, `StoredConfig`, `PedidosYaOrderDetail`, `InterceptedRequest`
+- `extensions/pedidosya/src/storage.ts` — wrappers de `chrome.storage.local` con `chrome.runtime.lastError`
+- `extensions/pedidosya/src/api.ts` — `sendOrders()` POST a `/integrations/orders/import` con `X-Api-Key`
+- `extensions/pedidosya/src/parser.ts` — `tryExtractOrder()` + `parseOrder()` + `mapStatus()` (29 tests)
+- `extensions/pedidosya/src/injected.ts` — override de `window.fetch` en contexto de página
+- `extensions/pedidosya/src/content.ts` — inyecta `injected.js`, reenvía eventos a `background`
+- `extensions/pedidosya/src/background.ts` — service worker con cola offline + reintentos exponenciales
+- `extensions/pedidosya/src/popup/` — estado de conexión + input de API Key
+- `extensions/pedidosya/build.mjs` — build programático Vite (cada entry point como IIFE separado)
+- `extensions/pedidosya/manifest.json` — Manifest v3, sin `"type": "module"` en background
+- 48 tests totales pasando (6 storage + 3 api + 29 parser + 10 background)
 
-**Capa 2 — API Architecture & Security:**
-- `UserRepository` creado (`modules/auth/repositories/`)
-- `AuthService` refactorizado para usar `UserRepository`
-- `UserResponseDto` reemplaza `sanitizeUser` — no más exposición de campos internos
-- Rate limiting: `@nestjs/throttler` con `ThrottlerGuard` global (5 login/min, 3 register/min)
-- Refresh token rotation con theft detection (reuse revoca todos los tokens)
-- `@fastify/helmet` para HTTP security headers
-- Cookie `secure` condicional según NODE_ENV (via ConfigService)
+## Deuda técnica registrada durante Sprint 3
 
-**Capa 3 — Frontend:**
-- `shadcn/ui` componentes instalados (button, input, label, card) — Tailwind v3 compatible
-- `zustand` — auth store (`useAuthStore`) con user, setUser, clear
-- `useAuth` hook — centraliza lógica de `/auth/me` + redirect + store sync
-- `env.ts` — validación Zod de vars de entorno en build time
-- `api.ts` — usa env.ts, agrega método `patch`
-- Login/Register pages migradas a componentes shadcn
-- Dashboard simplificado a `useAuth` hook
+- **Race condition en `background.ts`**: `enqueueOrder` no se awaita antes de `triggerProcessQueue`, lo que puede causar que un pedido sea sobrescrito por el `saveQueue` del proceso de cola. Ver issue en PR #5.
 
 ## Próximo paso inmediato
 
-Comenzar **Sprint 2**: diseñar e implementar módulo de Órdenes (API + Web).
-Ver tareas pendientes en `docs/TASKS.md` sección Sprint 2.
+**Fase exploratoria de PedidosYa**: el usuario quiere capturar requests reales del panel de PedidosYa para analizar la estructura real de las respuestas y actualizar el parser con datos reales. Diseñar un mecanismo de logging/captura desde la extensión.
 
-## Commits del refactor
+Luego: comenzar **Sprint 4** (dashboard básico — métricas, lista de pedidos, configuración).
+Ver `docs/TASKS.md` para tareas pendientes.
 
-- `2da9531` — fix: consistencia y deuda técnica menor (Capa 1)
-- `c2a6bc3` — fix: eliminar casts any innecesarios y restaurar refresh token rotation
-- `bcd9648` — refactor: repository pattern, response DTOs y seguridad en API (Capa 2)
-- `7a658e8` — fix: registrar ThrottlerGuard y null guard en me()
-- `177d95e` — refactor: shadcn/ui, Zustand, useAuth y mejoras de arquitectura en Web (Capa 3)
-- `34fd5c9` — fix: limpiar dependencias, registrar tailwindcss-animate y documentar retry:false
+## Commits del Sprint 3
+
+- `d48a226` — chore: scaffold extensión PedidosYa — Vite + Vitest + Manifest v3
+- `eacb019` — feat: constants, tipos y storage wrappers para extensión PedidosYa
+- `73b19fc` — feat: api.ts — sendOrders con X-Api-Key hacia backend Orderhub
+- `5d6e817` — feat: parser.ts — PedidosYa response a ImportedOrder con TDD
+- `b2fa3a9` — feat: interceptor fetch — injected.ts + content.ts (Manifest v3)
+- `501be07` — feat: background service worker — cola offline con reintentos exponenciales
+- `34e5fde` — feat: popup — estado de conexión, API Key input, pedidos pendientes
+- `dc912b4` — feat: build extensión PedidosYa — dist instalable en Chrome
+- `e64d7e7` — fix: centralizar MESSAGE_TYPES en constants, arreglar formato dev build
+- `5edfe06` — Merge PR #5 → develop
 
 ## Decisiones recientes
 
-- shadcn@latest (v4) es incompatible con Tailwind v3 → componentes implementados manualmente con clases Tailwind v3. Evaluar upgrade a Tailwind v4 en Sprint 2+.
-- `shadcn form` component pendiente — los forms actuales usan react-hook-form + inputs directos (funciona, pero sin FormField/FormMessage de shadcn)
+- Rollup no soporta `format: 'iife'` con múltiples entry points → `build.mjs` programático (un build por entry).
+- Content scripts en Chrome MV3 no pueden ser ES modules → IIFE obligatorio.
+- `injected.ts` duplica `ORDER_URL_PATTERNS` intencionalmente (no puede importar módulos en contexto de página).

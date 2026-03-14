@@ -225,6 +225,21 @@ importers:
         specifier: ^1.6.0
         version: 1.6.1(@types/node@20.19.37)(jsdom@24.1.3)(terser@5.46.0)
 
+  extensions/sniffer:
+    devDependencies:
+      '@types/chrome':
+        specifier: ^0.0.260
+        version: 0.0.260
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.37
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vite:
+        specifier: ^5.2.0
+        version: 5.4.21(@types/node@20.19.37)(terser@5.46.0)
+
   packages/types:
     devDependencies:
       typescript:
