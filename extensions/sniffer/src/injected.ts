@@ -6,6 +6,8 @@
  * Envía capturas a content.ts via window.postMessage.
  */
 
+export {};
+
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 interface SnifferConfig {
@@ -121,10 +123,17 @@ function extractQueryParams(rawUrl: string): Record<string, string> | null {
 // ── Schema recursivo ──────────────────────────────────────────────────────────
 
 function mergeSchemas(a: unknown, b: unknown): unknown {
+  // Arrays: merge the representative element schemas
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length && b.length ? [mergeSchemas(a[0], b[0])] : (a.length ? a : b);
+  }
   if (typeof a !== 'object' || typeof b !== 'object' || Array.isArray(a) || Array.isArray(b)) return a;
   const result = { ...(a as Record<string, unknown>) };
   for (const k of Object.keys(b as Record<string, unknown>)) {
-    if (!(k in result)) result[k] = (b as Record<string, unknown>)[k];
+    // Recurse on shared keys so deeper fields from later responses aren't lost
+    result[k] = k in result
+      ? mergeSchemas(result[k], (b as Record<string, unknown>)[k])
+      : (b as Record<string, unknown>)[k];
   }
   return result;
 }
@@ -218,8 +227,7 @@ function record(
 function recordMerge(key: string, schema: unknown, rawData: unknown): void {
   const now = new Date().toISOString();
   const prev = endpoints[key];
-  const merged = prev?.schema && typeof prev.schema === 'object' && !Array.isArray(prev.schema)
-    ? mergeSchemas(prev.schema, schema) : schema;
+  const merged = prev?.schema != null ? mergeSchemas(prev.schema, schema) : schema;
 
   const enumAccumulator: EnumAccumulator = {};
   if (prev?.enumValues) {
@@ -355,7 +363,7 @@ function PatchedXHR(this: XMLHttpRequest): XMLHttpRequest {
   ) {
     _method = (method ?? 'GET').toUpperCase();
     _url = url ?? '';
-    return _open.call(xhr, method, url, async, user, password);
+    return _open.call(xhr, method, url, async ?? true, user, password);
   };
 
   const _send = xhr.send;
