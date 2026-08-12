@@ -10,7 +10,24 @@ _Última actualización: 2026-03-14_
 
 ## Estado actual
 
-Sprint 3 completado y mergeado a `develop` (PR #5). La extensión Chrome para PedidosYa está funcional y lista para instalar.
+Extensión Chrome "Sniffer" completada y mergeada a `develop` (PR #6). Es una herramienta de dev genérica para capturar schemas de cualquier web app en tiempo real, como paso previo a actualizar el parser de PedidosYa con datos reales.
+
+## Próximo paso inmediato
+
+Usar el Sniffer con el panel real de PedidosYa para capturar schemas actualizados, luego comenzar **Sprint 4** (dashboard básico — métricas, lista de pedidos, configuración).
+
+---
+
+## Qué se hizo (Sniffer Extension — PR #6)
+
+- `tools/sniffer-server.js` — servidor Node.js zero-deps, escribe `schemas.json` con escritura atómica debounceada
+- `extensions/sniffer/src/injected.ts` — intercepta fetch/XHR/WebSocket/SSE/GraphQL, extrae schemas con enum values y query params
+- `extensions/sniffer/src/content.ts` — inyecta config + interceptor, relay al background
+- `extensions/sniffer/src/background.ts` — service worker con cola offline, flush via `chrome.alarms` (idempotente)
+- `extensions/sniffer/src/popup/` — UI dark con status del server, stats, config, export y clear
+- `extensions/sniffer/build.mjs` — build Vite (mismo patrón que pedidosya)
+
+---
 
 ## Qué se hizo (Sprint 3 — Extensión PedidosYa)
 
